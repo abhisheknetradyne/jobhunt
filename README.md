@@ -58,14 +58,19 @@ Runs **before** any LLM call. This is what keeps cost tiny.
 
 ```yaml
 filters:
-  include_titles: ['software engineer', '\bsde\b', ...]
-  exclude_titles: ['\b(staff|principal|senior|manager)\b', ...]
+  include_titles: []          # empty = accept any title
+  exclude_titles: ['\b(staff|principal|manager)\b', '\b(frontend|mobile|qa)\b', ...]
   locations: [bangalore, bengaluru, india]
   allow_remote: true
-  max_age_days: 30          # default freshness window
+  max_age_days: 1           # default: last 1 day only
+
 score_threshold: 7.0
 max_per_digest: 5
 ```
+
+Title filtering is **exclude-only**: roles are not required to match a narrow
+include list, so broader software-engineer titles can reach the LLM. Excludes
+still drop staff/principal/manager, frontend/mobile, QA, sales, etc.
 
 - Set `max_age_days: null` to disable the age gate.
 - Override for one run: `python -m jobhunt run --max-age-days 14`

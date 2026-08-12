@@ -228,7 +228,7 @@ filters:
     - bangalore
     - bengaluru
   allow_remote: true
-  max_age_days: 30
+  max_age_days: 1
 score_threshold: 7.0  # below this, no draft and no digest slot
 max_per_digest: 5
 ```
