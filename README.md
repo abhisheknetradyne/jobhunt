@@ -40,17 +40,25 @@ open out/digest.html   # or just open the file in a browser
 
 ### 1. Companies
 
+There is **no single public API that lists every company’s jobs**. LinkedIn,
+Naukri, Indeed and Google Jobs are not used (no unauthenticated API; scraping
+violates their ToS). Instead we poll each company’s documented ATS board.
+
 Edit [`companies.yaml`](companies.yaml). Slug = last path segment of the careers board:
 
 | Board URL | `ats` | `slug` |
 |---|---|---|
 | `boards.greenhouse.io/stripe` | `greenhouse` | `stripe` |
-| `jobs.lever.co/netlify` | `lever` | `netlify` |
-| `jobs.ashbyhq.com/ramp` | `ashby` | `ramp` |
+| `jobs.lever.co/meesho` | `lever` | `meesho` |
+| `jobs.ashbyhq.com/openai` | `ashby` | `openai` |
 
-Start with 10–15 companies. Dead slugs print an HTTP status and return nothing — they don’t crash the run.
+The shipped list is ~70 verified boards (Greenhouse, Lever, Ashby), including
+India-hiring companies (Postman, PhonePe, Groww, Thoughtworks, Meesho, CRED)
+plus infra, product, and AI labs. Stripe is one Greenhouse board among many —
+Databricks, Cloudflare, GitLab, MongoDB, Datadog, etc. are polled the same way.
 
-No LinkedIn / Naukri — those have no public API and scraping violates their ToS.
+Dead slugs print an HTTP status and return nothing — they don’t crash the run.
+Location and exclude-title filters still drop most postings before any LLM call.
 
 ### 2. Filters (`config.yaml`)
 
@@ -72,10 +80,8 @@ Title filtering is **exclude-only**: roles are not required to match a narrow
 include list, so broader software-engineer titles can reach the LLM. Excludes
 still drop staff/principal/manager, frontend/mobile, QA, sales, etc.
 
-- Set `max_age_days: null` to disable the age gate.
-- Override for one run: `python -m jobhunt run --max-age-days 14`
-
-> Bare `sde` does **not** match “Software Development Engineer”. Use `\bsde\b` **and** the spelled-out form.
+- Default freshness is **1 day**. Set `max_age_days: null` to disable, or
+  override for one run: `python -m jobhunt run --max-age-days 14`
 
 ### 3. Secrets (`.env`)
 
