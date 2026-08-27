@@ -16,6 +16,16 @@ Personal job-search agent. Every weekday morning it:
                    (no LLM cost)
 ```
 
+### Digest preview
+
+A scored match with tailored resume bullets:
+
+![Job digest card](docs/jobhunt_1.png)
+
+Drafted cover note, questions to ask, and an apply link — you still submit yourself:
+
+![Cover note and apply kit](docs/jobhunt_2.png)
+
 New to Python? Use **[SETUP.md](SETUP.md)** (step-by-step). This README is the short path.
 
 ---
