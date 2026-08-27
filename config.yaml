@@ -1,49 +1,37 @@
 # jobhunt configuration. Everything tunable lives here — no editing Python.
 #
 # Tune `filters` first. It is deterministic, free, and it is what keeps the
-# LLM bill small: roughly 2000 raw postings -> 40 candidates before a single
+# LLM bill small: roughly 2000 raw postings -> candidates before a single
 # token is spent.
 
 filters:
-  # Title regexes, matched case-insensitively against the job title only.
-  # A title must match at least one include AND zero excludes.
-  #
-  # Gotcha: "sde" as a bare regex does NOT match "Software Development
-  # Engineer" — different words entirely. Use \bsde\b for the acronym and
-  # list the spelled-out variants separately, as below.
-  include_titles:
-    - '\b(software|backend|back-end|server|platform|infrastructure|infra|systems|distributed|cloud)\b.*\bengineer\b'
-    - '\bengineer\b.*\b(backend|back-end|platform|infrastructure|infra|systems|distributed)\b'
-    - '\bsde\b'
-    - '\bsde\s*-?\s*(i{1,3}|[123])\b'
-    - 'software development engineer'
-    - 'software engineer'
-    - 'site reliability engineer'
-    - '\bsre\b'
-    - 'member of technical staff'
-    # systems / networking track — matches your DPDK, packet-processing and
-    # kernel background. Drop these if you widen away from low-level work.
-    - '\bnetwork(ing)?\s+(software\s+)?engineer\b'
-    - '\b(kernel|embedded|firmware|driver|packet|dataplane|data plane)\b.*\bengineer\b'
-    - '\bengineer\b.*\b(kernel|packet|dataplane|networking|performance)\b'
-    - '\bperformance engineer\b'
-    - '\bsystems engineer\b'
-    - '\bc\+\+\b.*\bengineer\b'
-    - '\bengineer\b.*\bc\+\+\b'
+  # Title gate is exclude-only: every title passes unless an exclude matches.
+  # Leave include_titles empty / omitted so broader SWE roles (and anything
+  # else that fits your resume) can reach the LLM screener.
+  include_titles: []
 
-  # Anything matching these is dropped even if an include matched.
+  # Drop these titles before any LLM call.
   exclude_titles:
-    - '\b(staff|principal|distinguished|fellow|architect)\b'      # too senior for now
-    # "Senior" at 2.5 years is a consistent 3-4 from the screener — dropping it
-    # here is free, dropping it after an LLM call is not. Delete this line once
-    # you are ~4 years in, or if you want to stretch-apply anyway.
-    - '\bsenior\b'
+    # senior / leadership track
+    - '\b(staff|principal|distinguished|fellow|architect)\b'
     - '\b(director|vp|vice president|head of|chief|cto)\b'
     - '\b(manager|management)\b'
-    - '\b(intern|internship|apprentice|trainee)\b'                # too junior
+    # too junior
+    - '\b(intern|internship|apprentice|trainee)\b'
+    # non-engineering / wrong function
     - '\b(sales|account executive|marketing|recruit|support|success)\b'
-    - '\b(frontend|front-end|ios|android|mobile|game|designer)\b' # wrong discipline
     - '\b(data scientist|machine learning scientist|research scientist)\b'
+    # frontend / mobile / apps
+    - '\b(frontend|front-end|front end)\b'
+    - '\b(ios|android|mobile|react native|flutter)\b'
+    - '\bmobile\s+app\b'
+    - '\b(ui|ux|ui\/ux|ux\/ui|designer|design systems)\b'
+    - '\b(game)\b'
+    # QA / test
+    - '\b(qa|q\.?a\.?|sdet|quality assurance)\b'
+    - '\b(test|testing)\s+(engineer|analyst|automation)\b'
+    - '\b(software\s+)?test(ing)?\s+(engineer|analyst)\b'
+    - '\bautomation\s+tester\b'
 
   # Substrings matched against "<location> <title>", case-insensitive.
   # Leave empty to accept every location.
@@ -58,7 +46,7 @@ filters:
   # Drop postings older than this. Set to null to disable.
   # Override per run: python -m jobhunt run --max-age-days 14
   # Boards often re-stamp `updated_at`, so this is a soft signal, not a promise.
-  max_age_days: 30
+  max_age_days: 1
 
 # --- LLM stages -------------------------------------------------------------
 screen_batch_size: 8      # jobs per screening call. Higher = cheaper, sloppier.

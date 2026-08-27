@@ -72,10 +72,10 @@ def test_lever_concatenates_description_lists_and_additional():
 def test_lever_createdAt_is_epoch_milliseconds():
     """1.7e12 is milliseconds. Reading it as seconds dates the post to 1970
     and the freshness filter eats the whole board without a word."""
-    two_days_ago = (datetime.now(timezone.utc) - timedelta(days=2)).date()
+    today = datetime.now(timezone.utc).date()
     jobs = parse_lever("quantstack", "QuantStack", mock.LEVER["quantstack"])
     j = next(j for j in jobs if j.title == "Backend Engineer (Go)")
-    assert j.posted_at == two_days_ago.isoformat()
+    assert j.posted_at == today.isoformat()
 
 
 def test_ashby_skips_unlisted_drafts():
@@ -109,40 +109,47 @@ def test_parsers_take_decoded_json_not_a_response():
 
 # -------------------------------------------------------------- prefilter ---
 
+def test_exclude_only_mode_has_no_include_patterns():
+    assert FILTERS.get("include_titles") in ([], None)
+
+
+def test_bare_sde_regex_does_not_match_the_spelled_out_title():
+    """Reminder: bare `sde` does not match "Software Development Engineer".
+    With exclude-only filters this no longer matters for the gate, but the
+    regex quirk is still worth pinning if anyone re-adds includes."""
+    assert not re.search(r"\bsde\b", "Software Development Engineer", re.I)
+    assert re.search(r"\bsde\b", "SDE II", re.I)
+
+
+@pytest.mark.parametrize("title", [
+    "Staff Software Engineer, Storage",       # too senior
+    "Principal Engineer",                     # too senior
+    "Engineering Manager, Platform",          # management track
+    "Enterprise Account Executive",           # wrong function
+    "Frontend Engineer, Design Systems",      # frontend
+    "Mobile App Developer",                   # mobile
+    "iOS Engineer",                           # mobile
+    "QA Engineer",                            # QA
+    "SDET, Platform",                         # QA
+    "Software Test Engineer",                 # QA
+    "Data Scientist, Growth",                 # wrong discipline
+])
+def test_junk_titles_are_rejected(title):
+    exc = FILTERS["exclude_titles"]
+    assert any(re.search(p, title, re.I) for p in exc), f"{title!r} not excluded"
+
+
 @pytest.mark.parametrize("title", [
     "Software Engineer II, Distributed Systems",
     "Software Development Engineer, Core Infra",
     "Backend Engineer (Go)",
     "Site Reliability Engineer",
-    "SDE II",
+    "Senior Software Engineer, Platform",   # "senior" is allowed; resume is Senior SWE
+    "Full Stack Engineer",                  # not in exclude list — LLM can reject
 ])
-def test_include_titles_match_real_titles(title):
-    inc = FILTERS["include_titles"]
-    assert any(re.search(p, title, re.I) for p in inc), title
-
-
-def test_bare_sde_regex_does_not_match_the_spelled_out_title():
-    """The bug: `sde` looks like it covers "Software Development Engineer".
-    It does not — they share no substring. \\bsde\\b plus the spelled-out
-    variant is why both titles survive the filter."""
-    assert not re.search(r"\bsde\b", "Software Development Engineer", re.I)
-    assert re.search(r"\bsde\b", "SDE II", re.I)
-    inc = FILTERS["include_titles"]
-    assert any(re.search(p, "Software Development Engineer, Core Infra", re.I) for p in inc)
-
-
-@pytest.mark.parametrize("title", [
-    "Staff Software Engineer, Storage",       # too senior
-    "Engineering Manager, Platform",          # management track
-    "Enterprise Account Executive",           # wrong function
-    "Frontend Engineer, Design Systems",      # wrong discipline
-    "Data Scientist, Growth",                 # wrong discipline
-])
-def test_junk_titles_are_rejected(title):
-    inc, exc = FILTERS["include_titles"], FILTERS["exclude_titles"]
-    included = any(re.search(p, title, re.I) for p in inc)
-    excluded = any(re.search(p, title, re.I) for p in exc)
-    assert excluded or not included, f"{title!r} would have survived"
+def test_swe_titles_are_not_excluded(title):
+    exc = FILTERS["exclude_titles"]
+    assert not any(re.search(p, title, re.I) for p in exc), title
 
 
 def test_full_mock_funnel_keeps_only_the_five_real_matches():
@@ -160,8 +167,8 @@ def test_full_mock_funnel_keeps_only_the_five_real_matches():
 
 
 def test_stale_posting_is_dropped_by_freshness_gate():
-    """Planted Senior+stale fixture is excluded by title first; age is tested
-    with a mid-level stale job that would otherwise pass."""
+    """Planted Senior+stale fixture is dropped by age (senior is no longer
+    title-excluded). Age is also tested with an explicit mid-level stale job."""
     from jobhunt.fetch import Job
     from jobhunt.mock import STALE_DAYS, _ago
 
@@ -178,7 +185,7 @@ def test_stale_posting_is_dropped_by_freshness_gate():
         job_id="gh:x:fresh", ats="greenhouse", company="X",
         title="Backend Engineer", location="Bangalore, India",
         url="https://example.com", description="Go",
-        posted_at=_ago(2).isoformat(),
+        posted_at=_ago(0).isoformat(),
     )
     kept, stats = prefilter([stale, fresh], FILTERS)
     assert [j.job_id for j in kept] == ["gh:x:fresh"]

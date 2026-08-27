@@ -35,7 +35,7 @@ def prefilter(jobs: list[Job], cfg: dict) -> tuple[list[Job], dict]:
 
     Stats keys: title, location, age, kept, input, max_age_days.
     """
-    inc = cfg.get("include_titles") or [r"."]
+    inc = cfg.get("include_titles") or [r"."]  # empty/omitted => match all titles
     exc = cfg.get("exclude_titles") or []
     locs = [l.lower() for l in (cfg.get("locations") or [])]
     allow_remote = bool(cfg.get("allow_remote", True))
@@ -44,6 +44,7 @@ def prefilter(jobs: list[Job], cfg: dict) -> tuple[list[Job], dict]:
 
     kept, stats = [], {"title": 0, "location": 0, "age": 0}
     for j in jobs:
+        # Include is optional (defaults to ".*"). Excludes always win.
         if not _any_match(inc, j.title) or (exc and _any_match(exc, j.title)):
             stats["title"] += 1
             continue

@@ -58,11 +58,11 @@ system, animations and accessibility work.</p>"""
 
 GREENHOUSE = {
     "acme-edge": {"jobs": [
-        # keeper: right level, right city, fresh
+        # keeper: right level, right city, fresh (within max_age_days=1)
         {"id": 5501001, "title": "Software Engineer II, Distributed Systems",
          "absolute_url": "https://boards.greenhouse.io/acme-edge/jobs/5501001",
          "location": {"name": "Bangalore, India"},
-         "updated_at": _gh(2), "content": _BACKEND_JD},
+         "updated_at": _gh(0), "content": _BACKEND_JD},
         # junk: wrong seniority
         {"id": 5501002, "title": "Staff Software Engineer, Storage",
          "absolute_url": "https://boards.greenhouse.io/acme-edge/jobs/5501002",
@@ -90,7 +90,7 @@ GREENHOUSE = {
         {"id": 7702001, "title": "Software Development Engineer, Core Infra",
          "absolute_url": "https://boards.greenhouse.io/novapay/jobs/7702001",
          "location": {"name": "Bengaluru, India"},
-         "updated_at": _gh(1),
+         "updated_at": _gh(0),
          "content": _BACKEND_JD + "<p>Java, Kafka, Postgres. Hybrid, 3 days in office.</p>"},
         # junk: wrong discipline
         {"id": 7702002, "title": "Frontend Engineer, Design Systems",
@@ -108,7 +108,7 @@ LEVER = {
          "applyUrl": "https://jobs.lever.co/quantstack/a1b2c3d4-1111-4aaa-9999-000000000001/apply",
          "categories": {"location": "Bangalore", "team": "Infrastructure",
                         "commitment": "Full-time"},
-         "createdAt": _lever(2),
+         "createdAt": _lever(0),
          "descriptionPlain": "We run a real-time market data pipeline in Go. "
                              "You will own ingestion, fan-out and the storage layer.",
          "lists": [{"text": "Requirements",
@@ -130,7 +130,7 @@ LEVER = {
          "hostedUrl": "https://jobs.lever.co/quantstack/a1b2c3d4-1111-4aaa-9999-000000000003",
          "categories": {"location": "Remote (India)", "team": "SRE",
                         "commitment": "Full-time"},
-         "createdAt": _lever(1),
+         "createdAt": _lever(0),
          "descriptionPlain": "Own SLOs, on-call and incident response for a "
                              "multi-region Kubernetes fleet. Terraform, Prometheus, Go.",
          "lists": [{"text": "Nice to have",
@@ -144,7 +144,7 @@ ASHBY = {
          "title": "Software Engineer, Networking",
          "location": "Bengaluru, India", "isListed": True,
          "jobUrl": "https://jobs.ashbyhq.com/helioscale/9f8e7d6c-2222-4bbb-8888-000000000001",
-         "publishedAt": _ashby(1),
+         "publishedAt": _ashby(0),
          "compensation": {"compensationTierSummary": "₹32L – ₹48L"},
          "descriptionPlain": "Work on our anycast network and HTTP proxy layer. "
                              "You will tune TCP congestion control, build DNS "

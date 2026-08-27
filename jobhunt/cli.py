@@ -297,7 +297,7 @@ def main(argv=None) -> int:
     sr.add_argument(
         "--max-age-days", type=int, default=None, metavar="N",
         help="override filters.max_age_days for this run "
-             "(config default is 30; pass 0-like values via config null to disable)",
+             "(config default is 1; set null in config.yaml to disable)",
     )
     sr.set_defaults(func=cmd_run)
 

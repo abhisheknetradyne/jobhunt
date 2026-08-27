@@ -9,8 +9,12 @@
 #   https://jobs.lever.co/<slug>               -> ats: lever
 #   https://jobs.ashbyhq.com/<slug>            -> ats: ashby
 #
-# THESE ARE EXAMPLES — verify each one before you trust the output. Companies
-# migrate between ATS vendors and slugs go dead. Check a slug in your browser:
+# There is no single public API that lists every company's jobs. LinkedIn,
+# Naukri, Indeed and Google Jobs do not offer an unauthenticated listing API
+# (scraping them violates their ToS). This file is the source of truth: we
+# poll each company's documented ATS endpoint instead.
+#
+# Verify a slug in the browser:
 #   https://boards-api.greenhouse.io/v1/boards/<slug>/jobs?content=true
 #   https://api.lever.co/v0/postings/<slug>?mode=json
 #   https://api.ashbyhq.com/posting-api/job-board/<slug>?includeCompensation=true
@@ -19,20 +23,95 @@
 # so one bad entry never takes down the run. Watch the per-board job counts on
 # stdout — a board reporting 0 jobs every day is a slug that needs fixing.
 #
-# Start with 10-15 companies you would actually join. A list of 200 is mostly
-# noise and makes the prefilter counts impossible to reason about.
+# Location/title filters in config.yaml still drop most of these before any
+# LLM call. Add/remove companies you would actually join.
 
 companies:
-  - {ats: greenhouse, slug: stripe,      name: Stripe}
-  - {ats: greenhouse, slug: databricks,  name: Databricks}
-  - {ats: greenhouse, slug: cloudflare,  name: Cloudflare}
-  - {ats: greenhouse, slug: figma,       name: Figma}
-  - {ats: greenhouse, slug: dropbox,     name: Dropbox}
-  - {ats: greenhouse, slug: coinbase,    name: Coinbase}
-  - {ats: greenhouse, slug: reddit,      name: Reddit}
-  - {ats: lever,      slug: voleon,      name: Voleon}
+  # --- already on the list ---
+  - {ats: greenhouse, slug: stripe,       name: Stripe}
+  - {ats: greenhouse, slug: databricks,   name: Databricks}
+  - {ats: greenhouse, slug: cloudflare,   name: Cloudflare}
+  - {ats: greenhouse, slug: figma,        name: Figma}
+  - {ats: greenhouse, slug: dropbox,      name: Dropbox}
+  - {ats: greenhouse, slug: coinbase,     name: Coinbase}
+  - {ats: greenhouse, slug: reddit,       name: Reddit}
+  - {ats: ashby,      slug: openai,       name: OpenAI}
+  - {ats: ashby,      slug: ramp,         name: Ramp}
+  - {ats: ashby,      slug: linear,       name: Linear}
+  - {ats: ashby,      slug: vanta,        name: Vanta}
 
-  - {ats: ashby,      slug: openai,      name: OpenAI}
-  - {ats: ashby,      slug: ramp,        name: Ramp}
-  - {ats: ashby,      slug: linear,      name: Linear}
-  - {ats: ashby,      slug: vanta,       name: Vanta}
+  # --- India / Bangalore boards (public ATS) ---
+  - {ats: greenhouse, slug: postman,      name: Postman}
+  - {ats: greenhouse, slug: phonepe,      name: PhonePe}
+  - {ats: greenhouse, slug: groww,        name: Groww}
+  - {ats: greenhouse, slug: thoughtworks, name: Thoughtworks}
+  - {ats: lever,      slug: meesho,       name: Meesho}
+  - {ats: lever,      slug: cred,         name: CRED}
+
+  # --- infra / data / cloud ---
+  - {ats: greenhouse, slug: mongodb,      name: MongoDB}
+  - {ats: greenhouse, slug: datadog,      name: Datadog}
+  - {ats: greenhouse, slug: elastic,      name: Elastic}
+  - {ats: greenhouse, slug: gitlab,       name: GitLab}
+  - {ats: greenhouse, slug: canonical,    name: Canonical}
+  - {ats: greenhouse, slug: fastly,       name: Fastly}
+  - {ats: greenhouse, slug: newrelic,     name: New Relic}
+  - {ats: greenhouse, slug: pagerduty,    name: PagerDuty}
+  - {ats: greenhouse, slug: coreweave,    name: CoreWeave}
+  - {ats: ashby,      slug: snowflake,    name: Snowflake}
+  - {ats: ashby,      slug: docker,       name: Docker}
+  - {ats: ashby,      slug: sentry,       name: Sentry}
+  - {ats: ashby,      slug: confluent,    name: Confluent}
+  - {ats: ashby,      slug: temporal,     name: Temporal}
+  - {ats: ashby,      slug: supabase,     name: Supabase}
+  - {ats: ashby,      slug: neon,         name: Neon}
+  - {ats: ashby,      slug: pinecone,     name: Pinecone}
+
+  # --- product / consumer / fintech ---
+  - {ats: greenhouse, slug: airbnb,       name: Airbnb}
+  - {ats: greenhouse, slug: pinterest,    name: Pinterest}
+  - {ats: greenhouse, slug: lyft,         name: Lyft}
+  - {ats: greenhouse, slug: instacart,    name: Instacart}
+  - {ats: greenhouse, slug: block,        name: Block}
+  - {ats: greenhouse, slug: twilio,       name: Twilio}
+  - {ats: greenhouse, slug: okta,         name: Okta}
+  - {ats: greenhouse, slug: asana,        name: Asana}
+  - {ats: greenhouse, slug: robinhood,    name: Robinhood}
+  - {ats: greenhouse, slug: discord,      name: Discord}
+  - {ats: greenhouse, slug: brex,         name: Brex}
+  - {ats: greenhouse, slug: affirm,       name: Affirm}
+  - {ats: greenhouse, slug: gusto,        name: Gusto}
+  - {ats: greenhouse, slug: chime,        name: Chime}
+  - {ats: greenhouse, slug: sofi,         name: SoFi}
+  - {ats: greenhouse, slug: duolingo,     name: Duolingo}
+  - {ats: greenhouse, slug: intercom,     name: Intercom}
+  - {ats: greenhouse, slug: boxinc,       name: Box}
+  - {ats: greenhouse, slug: airtable,     name: Airtable}
+  - {ats: greenhouse, slug: remotecom,    name: Remote}
+  - {ats: lever,      slug: palantir,     name: Palantir}
+  - {ats: lever,      slug: spotify,      name: Spotify}
+  - {ats: ashby,      slug: notion,       name: Notion}
+  - {ats: ashby,      slug: plaid,        name: Plaid}
+  - {ats: ashby,      slug: 1password,    name: 1Password}
+  - {ats: ashby,      slug: clickup,      name: ClickUp}
+  - {ats: ashby,      slug: miro,         name: Miro}
+  - {ats: ashby,      slug: amplitude,    name: Amplitude}
+  - {ats: ashby,      slug: zapier,       name: Zapier}
+  - {ats: ashby,      slug: n8n,          name: n8n}
+
+  # --- AI / developer tools ---
+  - {ats: greenhouse, slug: anthropic,    name: Anthropic}
+  - {ats: greenhouse, slug: vercel,       name: Vercel}
+  - {ats: greenhouse, slug: scaleai,      name: Scale AI}
+  - {ats: greenhouse, slug: togetherai,   name: Together AI}
+  - {ats: ashby,      slug: cursor,       name: Cursor}
+  - {ats: ashby,      slug: perplexity,   name: Perplexity}
+  - {ats: ashby,      slug: cohere,       name: Cohere}
+  - {ats: ashby,      slug: langchain,    name: LangChain}
+  - {ats: ashby,      slug: replit,       name: Replit}
+  - {ats: ashby,      slug: elevenlabs,   name: ElevenLabs}
+  - {ats: ashby,      slug: hex,          name: Hex}
+  - {ats: ashby,      slug: anyscale,     name: Anyscale}
+  - {ats: ashby,      slug: lambda,       name: Lambda}
+  - {ats: ashby,      slug: cerebras,     name: Cerebras}
+  - {ats: ashby,      slug: airbyte,      name: Airbyte}
